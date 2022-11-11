@@ -1,0 +1,13 @@
+#Ignoring all Raw Data Files
+
+
+
+.ipynb_checkpoints/*
+.*/
+time_env/
+/consumption_data.csv
+lock/
+Order_Review_Metrics.xlsx
+tseries.py
+data/
+
