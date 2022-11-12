@@ -1,14 +1,14 @@
-import streamlit as st
-import pandas as pd
-import numpy as np
-import vaex as vx
-import plotly_express as px
-from data_import import load_data, load_stock_balance
-from datetime import datetime
-import pyarrow as pa
-import folium as fl
-import datetime as dt
 from dispensation import human_format
+import datetime as dt
+import folium as fl
+import pyarrow as pa
+from datetime import datetime
+from data_import import load_data, load_stock_balance
+import plotly_express as px
+import vaex as vx
+import numpy as np
+import pandas as pd
+import streamlit as st
 
 
 if not vx.cache.is_on():
@@ -49,6 +49,7 @@ def merge_order(df, vx_df, facility, location, date_range):
     df['Packs Dispensed (Facility Level)'] = 0
     df['Packs Dispensed (Regional Level)'] = 0
     df['Stock Balance (Facility Level)'] = 0
+    
 
     for index, row in df.iterrows():
         facility_match = facility_gp[facility_gp['Product_Description']
@@ -68,6 +69,7 @@ def merge_order(df, vx_df, facility, location, date_range):
 
 def compute_final(df):
     df['Final Requested Quantity'] = 0
+    df['Excess Variance'] = 0
 
     for index, row in df.iterrows():
         if row['Packs Dispensed (Facility Level)'] < row['QUANTITY ']:
@@ -93,9 +95,14 @@ def compute_final(df):
             stock_factor = 0.25
         total_factor = dispensation_factor + location_factor + stock_factor
         final_qty = np.round(total_factor * row['QUANTITY '], decimals=0)
-        df.loc[index, 'Final Requested Quantity'] = 1 if final_qty < 0 else final_qty
+        df.loc[index, 'Final Requested Quantity'] = 1 if final_qty < 1 else final_qty
 
     df['Total After Review'] = df['Final Requested Quantity'] * df['PRICE']
+    df['Excess Variance'] = np.round(df['QUANTITY '] - df['Final Requested Quantity'], decimals=2)
+
+
+def convert_df(df):
+    return df.to_csv(index=False).encode('utf-8')
 
 
 def show_page():
@@ -106,11 +113,13 @@ def show_page():
     facility = st.sidebar.multiselect(
         "Select Facility:", vx_df['Sale_Facility'].unique(), default=None)
 
+
     if facility == []:
         location = st.sidebar.multiselect(
             "Select Location:", options=vx_df['LOCATION'].unique())
         if location == []:
             st.warning("Select Facility or Location")
+            st.stop()
     else:
         location = vx_df[vx_df['Sale_Facility'].isin(
             facility)]['LOCATION'].unique()
@@ -120,59 +129,92 @@ def show_page():
     date_range = st.sidebar.select_slider(
         label='Date Range',
         options=["Past Month", "Past 3 months",
-                 "Past 6 months", "Past 12 months", "All Time", ],
+                "Past 6 months", "Past 12 months", "All Time", ],
         value=("All Time"),
         help='Select a date range.',
     )
 
     if file and facility:
-        df = pd.read_csv(file)
-        merge_order(df=df, vx_df=vx_df,
+        new_df = pd.read_csv(file)
+        merge_order(df=new_df, vx_df=vx_df,
                     facility=facility[0], location=location[0], date_range=date_range)
-        df = df.round(decimals=2)
+        new_df = new_df.round(decimals=2)
         st.header(facility[0])
         st.subheader("Stats")
 
         metrics = st.columns(4)
         metrics[0].metric(label='Total Order Value',
-                          value=f"GHS {human_format(sum(df['TOTAL']))}")
+                          value=f"GHS {human_format(sum(new_df['TOTAL']))}")
         metrics[1].metric(label='Total Packs Requested',
-                          value=f"{human_format(sum(df['QUANTITY ']))}")
+                          value=f"{human_format(sum(new_df['QUANTITY ']))}")
         st.subheader("Order Data")
+        with st.expander("View Raw Data"):
+            st.dataframe(new_df)
+        df = new_df.copy()
         review = st.checkbox("Review Order", on_change=compute_final(df))
-        st.dataframe(df)
+
+        order_chart_options = st.multiselect("Compare Order Quantity With:", options=[
+            "Stock Balance", "Regional Sales", "Dispensed Sales"], default="Dispensed Sales")
+
+        order_cols = {
+            "Stock Balance": "Stock Balance (Facility Level)",
+            "Regional Sales": "Packs Dispensed (Regional Level)",
+            "Dispensed Sales": "Packs Dispensed (Facility Level)",
+            
+        }
+        chart_y = ["QUANTITY ", ]
+
+        for option in order_chart_options:
+            chart_y.append(order_cols[option])
+
+        fig_1 = px.bar(df, x="DRUG ", y=chart_y, barmode='group')
+        with fig_1.batch_update():
+            fig_1.update_layout(coloraxis_showscale=False)
+            fig_1.update_layout(width=1000, height=700, title="Comparing Order Against Various Metrics")
+
+        st.plotly_chart(fig_1)
+
+        
 
         if review:
             message = st.success(
                 "Bingo!!! Requested Quantities Have Been Reviewed")
+            
             st.subheader("Review Order Data")
-            metrics[2].metric(label='Total Order Value After Review',
-                              value=f"GHS {human_format(sum(df['Total After Review']))}")
-            metrics[3].metric(label='Total Packs After Review',
-                              value=f"{human_format(sum(df['Final Requested Quantity']))}")
-            st.dataframe(df)
+
+            csv = convert_df(df)
+            st.download_button("Press to Download", csv, "file.csv", "text/csv", key='download-csv')
+
+            with st.expander("Expand Data"):
+                metrics[2].metric(label='Total Order Value After Review',
+                                  value=f"GHS {human_format(sum(df['Total After Review']))}")
+                metrics[3].metric(label='Total Packs After Review',
+                                  value=f"{human_format(sum(df['Final Requested Quantity']))}")
+
+                st.dataframe(df)
 
             compare_option = st.multiselect("Compare Order Quantity With:", options=[
-                  "Stock Balance", "Regional Sales", "Dispensed Sales", "Reviewed Quantity"], default="Reviewed Quantity")
+                "Stock Balance", "Regional Sales", "Dispensed Sales", "Reviewed Quantity","Excess Variance"], default="Reviewed Quantity")
 
             compare = {
                 "Stock Balance": "Stock Balance (Facility Level)",
                 "Regional Sales": "Packs Dispensed (Regional Level)",
                 "Dispensed Sales": "Packs Dispensed (Facility Level)",
                 "Reviewed Quantity": "Final Requested Quantity",
+                "Excess Variance" : "Excess Variance"
             }
             bar_y = ["QUANTITY ", ]
 
             for option in compare_option:
                 bar_y.append(compare[option])
-                
-            st.title("Comparing Order Against Various Metrics")
+
             fig = px.bar(df, x="DRUG ", y=bar_y, barmode='group')
             with fig.batch_update():
                 fig.update_layout(coloraxis_showscale=False)
-                fig.update_layout(width=1000, height=700)
+                fig.update_layout(width=1000, height=700, title="Comparing Order Against Various Metrics")
+                
 
             st.plotly_chart(fig)
-            
+
     else:
         st.stop()
