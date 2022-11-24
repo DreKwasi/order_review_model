@@ -1,7 +1,5 @@
 from dispensation import human_format
 import datetime as dt
-import folium as fl
-import pyarrow as pa
 from datetime import datetime
 from data_import import load_data, load_stock_balance
 import plotly_express as px
