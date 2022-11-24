@@ -7,8 +7,6 @@ import plotly.graph_objects as go
 from data_import import load_data
 import datetime as dt
 import pyarrow as pa
-import folium as fl
-from streamlit_folium import folium_static
 from geopy.geocoders import Nominatim
 import pickle
 
