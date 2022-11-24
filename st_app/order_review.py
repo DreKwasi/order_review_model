@@ -22,14 +22,14 @@ def merge_order(df, vx_df, facility, location, date_range):
 
     df_max = vx_df['Sale_Date'].values.max()
 
-    differences = {"All Time": np.timedelta64(730, "D"),
-                   "Past 12 months": np.timedelta64(365, "D"),
-                   "Past 6 months": np.timedelta64(180, "D"),
-                   "Past 3 months": np.timedelta64(90, "D"),
-                   "Past Month": np.timedelta64(30, "D")
+    differences = {"All Time": [np.timedelta64(730, "D"), 12],
+                   "Past 12 months": [np.timedelta64(365, "D", ), 12],
+                   "Past 6 months": [np.timedelta64(180, "D"), 6],
+                   "Past 3 months": [np.timedelta64(90, "D"), 3],
+                   "Past Month": [np.timedelta64(30, "D"), 1]
                    }
 
-    df_min = df_max - differences[date_range]
+    df_min = df_max - differences[date_range][0]
     vx_df = vx_df[vx_df.Sale_Date >= df_min]
 
     facility_df = vx_df[vx_df['Sale_Facility'] == facility]
@@ -47,11 +47,15 @@ def merge_order(df, vx_df, facility, location, date_range):
     df['Packs Dispensed (Facility Level)'] = 0
     df['Packs Dispensed (Regional Level)'] = 0
     df['Stock Balance (Facility Level)'] = 0
-    
 
     for index, row in df.iterrows():
         facility_match = facility_gp[facility_gp['Product_Description']
                                      == row['PRODUCT']]
+        sum_qty = facility_match['Sum_of_Quantity_In_Packs'].values[0] if len(
+            facility_match['Sum_of_Quantity_In_Packs'].values) > 0 else 0
+        facility_match.loc[:, 'Sum_of_Quantity_In_Packs'] = sum_qty + \
+            (sum_qty/differences[date_range][1])
+
         df.loc[index, 'Packs Dispensed (Facility Level)'] = facility_match['Sum_of_Quantity_In_Packs'].values[0] if len(
             facility_match['Sum_of_Quantity_In_Packs'].values) > 0 else 0
 
@@ -70,6 +74,7 @@ def compute_final(df):
     df['Excess Variance'] = 0
 
     for index, row in df.iterrows():
+
         if row['Packs Dispensed (Facility Level)'] < row['REQUESTED QTY']:
             dispensation_factor = (
                 row['Packs Dispensed (Facility Level)'] / row['REQUESTED QTY']) * 0.5
@@ -96,7 +101,8 @@ def compute_final(df):
         df.loc[index, 'REVIEWED QTY'] = 1 if final_qty < 1 else final_qty
 
     df['Total After Review'] = df['REVIEWED QTY'] * df['PRICE']
-    df['Excess Variance'] = np.round(df['REQUESTED QTY'] - df['REVIEWED QTY'], decimals=2)
+    df['Excess Variance'] = np.round(
+        df['REQUESTED QTY'] - df['REVIEWED QTY'], decimals=2)
 
 
 def convert_df(df):
@@ -110,7 +116,6 @@ def show_page():
     )
     facility = st.sidebar.multiselect(
         "Select Facility:", vx_df['Sale_Facility'].unique(), default=None)
-
 
     if facility == []:
         location = st.sidebar.multiselect(
@@ -127,7 +132,7 @@ def show_page():
     date_range = st.sidebar.select_slider(
         label='Date Range',
         options=["Past Month", "Past 3 months",
-                "Past 6 months", "Past 12 months", "All Time", ],
+                 "Past 6 months", "Past 12 months", "All Time", ],
         value=("All Time"),
         help='Select a date range.',
     )
@@ -159,7 +164,7 @@ def show_page():
             "Stock Balance": "Stock Balance (Facility Level)",
             "Regional Sales": "Packs Dispensed (Regional Level)",
             "Dispensed Sales": "Packs Dispensed (Facility Level)",
-            
+
         }
         chart_y = ["REQUESTED QTY", ]
 
@@ -169,20 +174,20 @@ def show_page():
         fig_1 = px.bar(df, x="PRODUCT", y=chart_y, barmode='group')
         with fig_1.batch_update():
             fig_1.update_layout(coloraxis_showscale=False)
-            fig_1.update_layout(width=1000, height=700, title="Comparing Order Against Various Metrics")
+            fig_1.update_layout(width=1000, height=700,
+                                title="Comparing Order Against Various Metrics")
 
         st.plotly_chart(fig_1)
-
-        
 
         if review:
             message = st.success(
                 "Bingo!!! Requested Quantities Have Been Reviewed")
-            
+
             st.subheader("Review Order Data")
 
             csv = convert_df(df)
-            st.download_button("Press to Download", csv, f"{facility[0]}.csv", "text/csv", key='download-csv')
+            st.download_button(
+                "Press to Download", csv, f"{facility[0]}.csv", "text/csv", key='download-csv')
 
             with st.expander("Expand Data"):
                 metrics[2].metric(label='Total Order Value After Review',
@@ -193,14 +198,14 @@ def show_page():
                 st.dataframe(df)
 
             compare_option = st.multiselect("Compare Order Quantity With:", options=[
-                "Stock Balance", "Regional Sales", "Dispensed Sales", "Reviewed Quantity","Excess Variance"], default="Reviewed Quantity")
+                "Stock Balance", "Regional Sales", "Dispensed Sales", "Reviewed Quantity", "Excess Variance"], default="Reviewed Quantity")
 
             compare = {
                 "Stock Balance": "Stock Balance (Facility Level)",
                 "Regional Sales": "Packs Dispensed (Regional Level)",
                 "Dispensed Sales": "Packs Dispensed (Facility Level)",
                 "Reviewed Quantity": "REVIEWED QTY",
-                "Excess Variance" : "Excess Variance"
+                "Excess Variance": "Excess Variance"
             }
             bar_y = ["REQUESTED QTY", ]
 
@@ -210,8 +215,8 @@ def show_page():
             fig = px.bar(df, x="PRODUCT", y=bar_y, barmode='group')
             with fig.batch_update():
                 fig.update_layout(coloraxis_showscale=False)
-                fig.update_layout(width=1000, height=700, title="Comparing Order Against Various Metrics")
-                
+                fig.update_layout(width=1000, height=700,
+                                  title="Comparing Order Against Various Metrics")
 
             st.plotly_chart(fig)
 
