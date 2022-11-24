@@ -9,6 +9,8 @@ import datetime as dt
 import pyarrow as pa
 from geopy.geocoders import Nominatim
 import pickle
+from operator import and_
+from functools import reduce
 
 
 def save(data):
@@ -29,24 +31,10 @@ df = load_data()
 df = df._future()
 
 
-def filter_data(location, facility, category, date_range):
-    if location == []:
-        filtered_df = (
-            df['VDL_Sub_Category'].isin(
-                category) & df['Sale_Facility'].isin(facility)
-        )
-    elif category == []:
-        filtered_df = (df['Sale_Facility'].isin(
-            facility) & df['LOCATION'].isin(location))
-    elif facility == []:
-        print('Facility', True)
-        filtered_df = (df['VDL_Sub_Category'].isin(
-            category) & df['LOCATION'].isin(location))
-    elif facility != [] and category != [] and facility != []:
-        filtered_df = (df.VDL_Sub_Category.isin(category) &
-                       df.Sale_Facility.isin(facility) &
-                       df.LOCATION.isin(location)
-                       )
+def filter_data(filter_dict, date_range):
+    filters = [df[key].isin(values)
+               for key, values in filter_dict.items() if values != []]
+    filtered_df = reduce(and_, filters, True)
 
     date_min = np.datetime64(date_range[0])
     date_max = np.datetime64(date_range[1])
@@ -98,13 +86,11 @@ def compute_filter(filter, binner_resolution):
     else:
         facility_rank = None
 
-    try:
-        gdf = dff.groupby(by=[vx.BinnerTime(
-            dff['Sale_Date'], resolution=binner_resolution[0]), "VDL_Sub_Category", "Sale_Facility", "LOCATION"], agg={"Packs_Sold": "sum"})
-    except RuntimeError:
-        dff = dff.extract()
-        gdf = dff.groupby(by=[vx.BinnerTime(
-            dff['Sale_Date'], resolution=binner_resolution[0]), "VDL_Sub_Category", "Sale_Facility", "LOCATION"], agg={"Packs_Sold": "sum"})
+    dff = dff.extract()
+    dff["Sale_Date"] = np.datetime_as_string(
+        dff["Sale_Date"].values, unit=binner_resolution[0])
+    gdf = dff.groupby(by=["Sale_Date", "VDL_Sub_Category", "Sale_Facility",
+                          "LOCATION"], agg={"Packs_Sold": "sum"}).sort(by="Sale_Date", ascending=True)
 
     avg_monthly_sales = gdf.sum(
         gdf['Packs_Sold']) / gdf.count(gdf['Packs_Sold'])
@@ -175,8 +161,7 @@ def show_page():
 
     binner_resolution = st.sidebar.selectbox(label='Time Resolution', options=[
                                              'Week', 'Month', 'Year'], index=1)
-    category = st.sidebar.multiselect("Select Category:", options=df['VDL_Sub_Category'].unique(),
-                                      default='Analgesics')
+
     facility = st.sidebar.multiselect(
         "Select Facility:", df['Sale_Facility'].unique(), default='Lifedoor Pharmacy, Dansoman')
 
@@ -191,7 +176,25 @@ def show_page():
         st.sidebar.multiselect(
             "Select Location:", options=df['LOCATION'].unique(), default=location)
 
-    filtered_df = filter_data(location, facility, category, date_range)
+    product = st.sidebar.multiselect(
+        "Select Product:", options=df["Product_Description"].unique())
+    if product == []:
+        category = st.sidebar.multiselect(
+            "Select Category:", options=df['VDL_Sub_Category'].unique(), default="Analgesics")
+    else:
+        category = df[df['Product_Description'].isin(
+            product)]['VDL_Sub_Category'].unique()
+        st.sidebar.multiselect(
+            "Select Location:", options=df['VDL_Sub_Category'].unique(), default=category)
+
+    filter_dict = {
+        "VDL_Sub_Category": category,
+        "Sale_Facility": facility,
+        "LOCATION": location,
+        "Product_Description": product
+    }
+
+    filtered_df = filter_data(filter_dict, date_range)
 
     param_dict = {'Location': location,
                   'Facility Name': facility, 'Product Sub Category': category}
@@ -226,23 +229,6 @@ def show_page():
     st.dataframe(df_selection)
 
     # visualize
-    @vx.register_function()
-    def date_to_string(x, binner_resolution):
-        new_arr = []
-        if binner_resolution == 'Week':
-            format = '%Y-%m-%d'
-        else:
-            format = '%Y-%m'
-
-        for i in x:
-            date_time = i.astype('datetime64[us]').astype(dt.datetime)
-            new_arr.append(date_time.strftime(format))
-
-        return pa.array(new_arr)
-
-    gdf['Sale_Date'] = gdf.func.date_to_string(
-        gdf['Sale_Date'], binner_resolution)
-
     st.subheader("Time Series Visualization")
     line_plot(gdf.to_pandas_df(), facility, location)
 
