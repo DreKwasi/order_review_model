@@ -74,9 +74,9 @@ with st.expander("The Dataset"):
     This app uses Data from Metabase which is curated from the flagship POS Software of the Facilities.
     
     This includes;
-        - [Dispensation Data] (https://metabase.mpharma.datacoral.io/question/2662-dispensation-data-for-order-review-model)
-        - [Facility Stock Balance Data] (https://metabase.mpharma.datacoral.io/question/2667-stock-balance-data-for-order-review)
-    
+     - [Dispensation Data] (https://metabase.mpharma.datacoral.io/question/2662-dispensation-data-for-order-review-model)
+     - [Facility Stock Balance Data] (https://metabase.mpharma.datacoral.io/question/2667-stock-balance-data-for-order-review)
+
     Email all Raw Downloaded Data to [Andrews Asamoah Boateng](andrews.boateng@mpharma.com) for Data Cleanup and Prepping
     """)
 
@@ -84,21 +84,21 @@ with st.expander("The Dataset"):
 with st.expander("How to use the app"):
     st.markdown("""
     About Page
-        - Upload all preliminary data i.e. Dispensation and Stock Balance Data before proceeding in app
-        - Proceed to the Next Page Only After Getting a Prompt that the Upload for Both Files are completed
-    
+     - Upload all preliminary data i.e. Dispensation and Stock Balance Data before proceeding in app
+     - Proceed to the Next Page Only After Getting a Prompt that the Upload for Both Files are completed
+
     Dispensation Page
-        - You can expore the demand for all Facilities Here
-        - Toggle the Date Range, Facility, Product, Category and Location to Get An Overview of the Demand
-    
+     - You can expore the demand for all Facilities Here
+     - Toggle the Date Range, Facility, Product, Category and Location to Get An Overview of the Demand
+
     Order Review
-        - This is where all the fun is; Upload an Order (csv format only) you wish to review
-        - Ensure the Column Structure of the File is same as the Template File Provided
-        - After Upload, Choose the Facility you wish to Review which will be followed a 
-            brief stats overview of the Order and the Facility's Dispensation
-        - Toggle the Review Checkbox to Review the Quantities of the Line Items. 
-            (This is followed by a summary below as well)
-        -Optionally you can also constrain the time period for which you are interested in.
+     - This is where all the fun is; Upload an Order (csv format only) you wish to review
+     - Ensure the Column Structure of the File is same as the Template File Provided
+     - After Upload, Choose the Facility you wish to Review which will be followed a 
+        brief stats overview of the Order and the Facility's Dispensation
+     - Toggle the Review Checkbox to Review the Quantities of the Line Items. 
+        (This is followed by a summary below as well)
+     -Optionally you can also constrain the time period for which you are interested in.
     """)
 
 # About Vaex
