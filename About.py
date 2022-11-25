@@ -20,7 +20,7 @@ dispensation = st.sidebar.file_uploader(
 )
 
 stock = st.sidebar.file_uploader(
-    "Upload a Stock Balance file", type="csv"
+    "Upload Inventory Overview Data", type="csv"
 )
 # image = ''
 # st.sidebar.image(image, use_column_width=True)

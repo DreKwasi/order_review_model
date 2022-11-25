@@ -30,6 +30,6 @@ def read_stock():
     try:
         data = pd.read_csv("pages/cleaned_data.csv")
     except FileNotFoundError:
-        st.error("Upload Stock Balance Data")
+        st.error("Upload Inventory Overview Data")
         st.stop()
     return data
