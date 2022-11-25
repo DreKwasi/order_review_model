@@ -18,6 +18,6 @@ selected = option_menu(menu_title=None, options=[
 if selected == "Home":
     show_about()
 if selected == 'Dispensation':
-    show()
+    show_disp()
 if selected == "Order Review":
     show_review()
