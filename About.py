@@ -55,30 +55,50 @@ if stock is not None:
 # About the GDELT Project
 with st.expander("About this App"):
     st.markdown("""
-    The Order Review Project monitors the month on month orders from Retail facilities.
+    The Order Review Project monitors compares the month-on-month dispensation of Retail Facilities with 
+    their respective monthly demand.
 
-    Given the fulfillment strain on the Supply Chain Unit, the Order Review Model provides a unique
-    perspective on how orders should be processed.
+    Given the difficulty in attaining appreciable fulfillment levels within a give timeframe,
+    the Order Review Model provides a unique approach fulfilling 'rational' demand across the various facilities.
 
-    The Order Review Model employs the Stock Balance, Product Category, Facility & Regional Dispensation of Products
-    and in future models the Withdrawal Pattern
+    The Order Review Model ascertain a facilities demand as a function of their Stock Balance, Product Category,
+    Facility & Regional Dispensation of Product and finally Withdrawal Patterns (Facility/Warehouse Initiated)
+    
+    In future models, a forecast model will be trained using the factors mentioned above to ascertain consistent
+    and progressive demand thus reducing the JIT model of procurement to a more sustainable approach.
     """)
 
 # About the data we are using
 with st.expander("The Dataset"):
     st.markdown("""
-    This app uses Metabase Data from the flagship POS Software.
-
-    Learn more about this dataset [here](https://blog.gdeltproject.org/gdelt-2-0-our-global-world-in-realtime/).
+    This app uses Data from Metabase which is curated from the flagship POS Software of the Facilities.
+    
+    This includes;
+        - [Dispensation Data] (https://metabase.mpharma.datacoral.io/question/2662-dispensation-data-for-order-review-model)
+        - [Facility Stock Balance Data] (https://metabase.mpharma.datacoral.io/question/2667-stock-balance-data-for-order-review)
+    
+    Email all Raw Downloaded Data to [Andrews Asamoah Boateng](andrews.boateng@mpharma.com) for Data Cleanup and Prepping
     """)
 
 # How to use the app
 with st.expander("How to use the app"):
     st.markdown("""
-    With this app you can explore the various effects of:
-        - 
-        
-    Optionally you can also constrain the time period for which you are interested in.
+    About Page
+        - Upload all preliminary data i.e. Dispensation and Stock Balance Data before proceeding in app
+        - Proceed to the Next Page Only After Getting a Prompt that the Upload for Both Files are completed
+    
+    Dispensation Page
+        - You can expore the demand for all Facilities Here
+        - Toggle the Date Range, Facility, Product, Category and Location to Get An Overview of the Demand
+    
+    Order Review
+        - This is where all the fun is; Upload an Order (csv format only) you wish to review
+        - Ensure the Column Structure of the File is same as the Template File Provided
+        - After Upload, Choose the Facility you wish to Review which will be followed a 
+            brief stats overview of the Order and the Facility's Dispensation
+        - Toggle the Review Checkbox to Review the Quantities of the Line Items. 
+            (This is followed by a summary below as well)
+        -Optionally you can also constrain the time period for which you are interested in.
     """)
 
 # About Vaex
