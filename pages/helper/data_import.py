@@ -28,8 +28,8 @@ def parse_data():
 @st.experimental_memo
 def read_stock():
     try:
-        data = pd.read_csv("pages/cleaned_data.csv")
+        data = pd.read_csv("pages/cleaned_stock_balance.csv")
+        return data
     except FileNotFoundError:
         st.error("Upload Inventory Overview Data")
         st.stop()
-    return data

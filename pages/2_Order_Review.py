@@ -16,7 +16,6 @@ vx_df = vx_df._future()
 
 stk_df = read_stock()
 
-
 def human_format(num):
     '''Better formatting of large numbers
     Kudos to:

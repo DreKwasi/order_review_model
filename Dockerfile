@@ -13,4 +13,4 @@ COPY . /time_series
 
 EXPOSE 8501
 
-CMD ["streamlit", "run", "About.py"]
+# CMD ["streamlit", "run", "About.py"]

@@ -5,7 +5,11 @@ services:
         build: .
         image: time_series_app
         container_name: time_series
+        command: >
+            bash -c "streamlit run About.py"
         volumes:
             - .:/time_series
         ports:
-            - 8501:8501
+            - 10552:8501
+        stdin_open: true
+        tty: true
