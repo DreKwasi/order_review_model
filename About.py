@@ -9,11 +9,11 @@ st.set_page_config(page_title="Order Review Model",
 
 # Sidebar settings
 st.sidebar.title("Order Review Model Analysis")
-files = os.listdir("tempDir")
+files = os.listdir("pages")
 
-if len(files) != 0:
-    for file in files:
-        os.remove(f"tempDir/{file}")
+for file in files:
+    if ".csv" in file:
+        os.remove(f"pages/{file}")
 
 dispensation = st.sidebar.file_uploader(
     "Upload Dispensation Data", type="csv"
@@ -30,7 +30,7 @@ if dispensation is not None:
     if dispensation.name != "cleaned_data.csv":
         st.error("Upload the Right Dispensation Data")
     else:   
-        with open(os.path.join("tempDir",dispensation.name),"wb") as f: 
+        with open(os.path.join("pages",dispensation.name),"wb") as f: 
             f.write(dispensation.getbuffer())         
             st.success("Saved Dispensation")
 
@@ -38,7 +38,7 @@ if stock is not None:
     if stock.name != "cleaned_stock_balance.csv":
         st.error("Upload the Right Stock Balance Data")
     else:   
-        with open(os.path.join("tempDir",stock.name),"wb") as f: 
+        with open(os.path.join("pages",stock.name),"wb") as f: 
             f.write(stock.getbuffer())         
             st.success("Saved Stock Balance")
 
