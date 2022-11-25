@@ -15,13 +15,21 @@ def parse_data():
     # Imports data
     parse_dates = ['Sale Date']
 
+    try:
     # You can try both to check speed of import
-    data = vx.from_csv("pages/cleaned_data.csv", parse_dates=['Sale_Date'], date_parser=pd.to_datetime)
+        data = vx.from_csv("pages/cleaned_data.csv", parse_dates=['Sale_Date'], date_parser=pd.to_datetime)
+    except FileNotFoundError:
+        st.error("Upload Dispensation Data")
+        st.stop()
 
     return data
 
 
 @st.experimental_memo
 def read_stock():
-    data = pd.read_csv("pages/cleaned_data.csv")
+    try:
+        data = pd.read_csv("pages/cleaned_data.csv")
+    except FileNotFoundError:
+        st.error("Upload Stock Balance Data")
+        st.stop()
     return data
