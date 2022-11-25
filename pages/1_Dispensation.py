@@ -256,7 +256,7 @@ pd_gdf = pd.concat([pd_gdf, pd.Series(latitudes, name="Latitude"), pd.Series(
     longitudes, name="Longitude")], axis=1)
 pd_gdf['LOCATION'] = pd_gdf['LOCATION'].astype(str)
 
-st.dataframe(pd_gdf)
+# st.dataframe(pd_gdf)
 
 fig = px.scatter_mapbox(
     pd_gdf,
