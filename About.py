@@ -74,8 +74,8 @@ with st.expander("The Dataset"):
     This app uses Data from Metabase which is curated from the flagship POS Software of the Facilities.
     
     This includes;
-     - [Dispensation Data] (https://metabase.mpharma.datacoral.io/question/2662-dispensation-data-for-order-review-model)
-     - [Facility Stock Balance Data] (https://metabase.mpharma.datacoral.io/question/2667-stock-balance-data-for-order-review)
+     - [Dispensation Data](https://metabase.mpharma.datacoral.io/question/2662-dispensation-data-for-order-review-model)
+     - [Facility Stock Balance Data](https://metabase.mpharma.datacoral.io/question/2667-stock-balance-data-for-order-review)
 
     Email all Raw Downloaded Data to [Andrews Asamoah Boateng](andrews.boateng@mpharma.com) for Data Cleanup and Prepping
     """)
