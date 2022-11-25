@@ -16,6 +16,7 @@ vx_df = vx_df._future()
 
 stk_df = read_stock()
 
+
 def human_format(num):
     '''Better formatting of large numbers
     Kudos to:
@@ -121,8 +122,13 @@ def convert_df(df):
 
 st.sidebar.header("User Inputs")
 file = st.sidebar.file_uploader(
-    "Upload a csv file", type="csv"
+    "Upload Order To Be Reviewed", type="csv"
 )
+
+order_template = pd.read_csv("pages/templates/order_template.csv")
+st.sidebar.download_button("Download Template", order_template.to_csv(index=False),
+                           "order_template.csv", "text/csv", key='download-order')
+
 facility = st.sidebar.multiselect(
     "Select Facility:", vx_df['Sale_Facility'].unique(), default=None)
 
@@ -163,6 +169,7 @@ if file and facility:
     st.subheader("Order Data")
     with st.expander("View Raw Data"):
         st.dataframe(new_df)
+
     df = new_df.copy()
     review = st.checkbox("Review Order", on_change=compute_final(df))
 
@@ -196,7 +203,7 @@ if file and facility:
 
         csv = convert_df(df)
         st.download_button(
-            "Press to Download", csv, f"{facility[0]}.csv", "text/csv", key='download-csv')
+            "Download Reviewed File", csv, f"{facility[0]}.csv", "text/csv", key='download-review')
 
         with st.expander("Expand Data"):
             metrics[2].metric(label='Total Order Value After Review',
