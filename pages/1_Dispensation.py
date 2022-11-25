@@ -27,7 +27,7 @@ def save(data):
 
 
 def load():
-    with open("regions_lot.txt", "rb") as f:
+    with open("pages/regions_lot.txt", "rb") as f:
         data = pickle.load(f)
         return data
 
@@ -232,6 +232,7 @@ st.subheader("Time Series Visualization")
 line_plot(gdf.to_pandas_df(), facility, location)
 
 locators = get_locators(location)
+st.write(locators)
 geo_data = r"ghana_regions.json"
 
 gdf = gdf.groupby(by="LOCATION", agg={"Sum_of_Quantity_In_Packs": "sum"})
