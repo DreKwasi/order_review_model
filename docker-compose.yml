@@ -6,7 +6,7 @@ services:
         image: time_series_app
         container_name: time_series
         command: >
-            bash -c "streamlit run About.py"
+            bash -c "streamlit run app.py"
         volumes:
             - .:/time_series
         ports:
