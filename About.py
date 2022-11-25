@@ -1,5 +1,6 @@
 import streamlit as st
 import os
+import pandas as pd
 
 
 # Page settings
@@ -18,10 +19,18 @@ for file in files:
 dispensation = st.sidebar.file_uploader(
     "Upload Dispensation Data", type="csv"
 )
+dispensation_template = pd.read_csv(
+    "pages/templates/dispensation_template.csv")
+st.sidebar.download_button("Download Dispensation Template", dispensation_template.to_csv(index=False),
+                           "dispensation_template.csv", "text/csv", key='download-disp')
 
 stock = st.sidebar.file_uploader(
     "Upload Inventory Overview Data", type="csv"
 )
+stock_balance_template = pd.read_csv(
+    "pages/templates/stock_balance_template.csv")
+st.sidebar.download_button("Download Stock Balance Template", stock_balance_template.to_csv(index=False),
+                           "stock_balance_template.csv", "text/csv", key='download-stk')
 # image = ''
 # st.sidebar.image(image, use_column_width=True)
 
@@ -29,19 +38,18 @@ stock = st.sidebar.file_uploader(
 if dispensation is not None:
     if dispensation.name != "cleaned_data.csv":
         st.error("Upload the Right Dispensation Data")
-    else:   
-        with open(os.path.join("pages",dispensation.name),"wb") as f: 
-            f.write(dispensation.getbuffer())         
+    else:
+        with open(os.path.join("pages", dispensation.name), "wb") as f:
+            f.write(dispensation.getbuffer())
             st.success("Saved Dispensation")
 
 if stock is not None:
     if stock.name != "cleaned_stock_balance.csv":
         st.error("Upload the Right Stock Balance Data")
-    else:   
-        with open(os.path.join("pages",stock.name),"wb") as f: 
-            f.write(stock.getbuffer())         
+    else:
+        with open(os.path.join("pages", stock.name), "wb") as f:
+            f.write(stock.getbuffer())
             st.success("Saved Stock Balance")
-
 
 
 # About the GDELT Project
