@@ -1,8 +1,6 @@
 import streamlit as st
-import os
-import pandas as pd
 from streamlit_option_menu import option_menu
-from st_pages.dispensation import show
+from st_pages.dispensation import show_disp
 from st_pages.order_review import show_review
 from st_pages.about import show_about
 

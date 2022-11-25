@@ -12,7 +12,7 @@ from operator import and_
 from functools import reduce
 from st_pages.helper.data_import import parse_data
 
-def show():
+def show_disp():
     df = parse_data()
 
     if not vx.cache.is_on():
