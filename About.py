@@ -98,7 +98,7 @@ with st.expander("How to use the app"):
         brief stats overview of the Order and the Facility's Dispensation
      - Toggle the Review Checkbox to Review the Quantities of the Line Items. 
         (This is followed by a summary below as well)
-     -Optionally you can also constrain the time period for which you are interested in.
+     - Optionally you can also constrain the time period for which you are interested in.
     """)
 
 # About Vaex
