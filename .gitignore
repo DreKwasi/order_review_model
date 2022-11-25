@@ -11,3 +11,6 @@ data/
 *.pot
 *.pyc
 __pycache__/
+cred.json
+.env
+*.xlsx
