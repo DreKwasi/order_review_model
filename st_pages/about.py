@@ -46,7 +46,7 @@ def show_about():
                 f.write(stock.getbuffer())
                 st.success("Saved Stock Balance")
 
-    # About the GDELT Project
+    # About the ORM Project
     with st.expander("About this App"):
         st.markdown("""
         The Order Review Project monitors compares the month-on-month dispensation of Retail Facilities with 
