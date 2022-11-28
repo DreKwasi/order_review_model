@@ -12,8 +12,8 @@ st.set_page_config(page_title="Order Review Model",
 
 
 # User Authentication
-login_cred = dict(st.secrets(["login_cred"]))
-cookie = dict(st.secrets(["cookie"]))
+login_cred = dict(st.secrets["login_cred"])
+cookie = dict(st.secrets["cookie"])
 
 authenticator = stauth.Authenticate(
     login_cred,
