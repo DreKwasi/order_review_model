@@ -5,3 +5,4 @@ plotly_express
 geopy
 streamlit
 streamlit-option-menu
+streamlit-authenticator
