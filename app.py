@@ -44,3 +44,6 @@ if authentication_status:
         show_review()
 
     authenticator.logout("Logout", "sidebar")
+    st.sidebar.write("""But as for you, be strong and
+                        do not give up, for your work 
+                        will be rewarded. 2 Chro 15:7 """)
